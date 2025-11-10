@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   Brain, 
   Mic, 
@@ -18,18 +19,28 @@ import {
   Sparkles
 } from 'lucide-react';
 
-interface HomePageProps {
-  onNavigateToTTS: () => void;
-}
+const HomePage: React.FC = () => {
+  const location = useLocation();
 
-const HomePage: React.FC<HomePageProps> = ({ onNavigateToTTS }) => {
+  // Handle scroll to section when hash is present in URL
+  useEffect(() => {
+    if (location.hash) {
+      const element = document.querySelector(location.hash);
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+    }
+  }, [location.hash]);
+
   const aiFeatures = [
     {
       icon: Mic,
       title: 'Text-to-Speech',
       description: 'Convert text to natural-sounding speech with multiple voice models and languages',
       status: 'available',
-      onClick: onNavigateToTTS
+      link: '/tts'
     },
     {
       icon: MessageSquare,
@@ -100,9 +111,9 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigateToTTS }) => {
               <a href="#features" className="text-gray-600 hover:text-gray-900 transition-colors">Features</a>
               <a href="#about" className="text-gray-600 hover:text-gray-900 transition-colors">About</a>
               <a href="#contact" className="text-gray-600 hover:text-gray-900 transition-colors">Contact</a>
-              <button onClick={onNavigateToTTS} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+              <Link to="/tts" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
                 Get Started
-              </button>
+              </Link>
             </nav>
           </div>
         </div>
@@ -129,13 +140,13 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigateToTTS }) => {
               solutions for every AI need.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button 
-                onClick={onNavigateToTTS}
+              <Link 
+                to="/tts"
                 className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
               >
                 Try Text-to-Speech
                 <ArrowRight className="h-5 w-5" />
-              </button>
+              </Link>
               <button className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
                 Learn More
               </button>
@@ -177,14 +188,13 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigateToTTS }) => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {aiFeatures.map((feature, index) => (
-              <div
-                key={index}
-                className={`bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 ${
-                  feature.status === 'available' ? 'cursor-pointer' : ''
-                }`}
-                onClick={feature.onClick}
-              >
+            {aiFeatures.map((feature, index) => {
+              const CardContent = (
+                <div
+                  className={`bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 ${
+                    feature.status === 'available' ? 'cursor-pointer' : ''
+                  }`}
+                >
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className={`p-3 rounded-lg ${
@@ -223,7 +233,18 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigateToTTS }) => {
                   )}
                 </div>
               </div>
-            ))}
+              );
+
+              return feature.status === 'available' && feature.link ? (
+                <Link key={index} to={feature.link}>
+                  {CardContent}
+                </Link>
+              ) : (
+                <div key={index}>
+                  {CardContent}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

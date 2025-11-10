@@ -11,12 +11,12 @@ import {
   // Users,
   // Globe
 } from 'lucide-react';
-import VoiceSelector from './VoiceSelector';
-import GenderSelector from './GenderSelector';
-import LanguageSelector from './LanguageSelector';
-import TextInput from './TextInput';
-import PitchControl from './PitchControl';
-import AudioPlayer from './AudioPlayer';
+import VoiceSelector from './components/VoiceSelector';
+import GenderSelector from './components/GenderSelector';
+import LanguageSelector from './components/LanguageSelector';
+import TextInput from './components/TextInput';
+import PitchControl from './components/PitchControl';
+import AudioPlayer from './components/AudioPlayer';
 
 interface VoiceModel {
   name: string;
@@ -33,15 +33,20 @@ interface TTSSettings {
   pitch: number;
 }
 
-const TextToSpeechWorkspace: React.FC = () => {
+const TextToSpeechWorkspacePage: React.FC = () => {
   // TTS Voice mapping based on gender and language
+  // const ttsVoicesOld = [
+  //   {"name": "id-ID-GadisNeural", "label": "Indonesian Female (Gadis)", "gender": "Female", "language": "Indonesian"},
+  //   {"name": "id-ID-ArdiNeural", "label": "Indonesian Male (Ardi)", "gender": "Male", "language": "Indonesian"},
+  //   {"name": "en-US-JennyNeural", "label": "English US Female (Jenny)", "gender": "Female", "language": "English"},
+  //   {"name": "en-US-GuyNeural", "label": "English US Male (Guy)", "gender": "Male", "language": "English"},
+  //   {"name": "ja-JP-NanamiNeural", "label": "Japanese Female (Nanami)", "gender": "Female", "language": "Japanese"},
+  //   {"name": "ja-JP-KeitaNeural", "label": "Japanese Male (Keita)", "gender": "Male", "language": "Japanese"},
+  // ];
+
   const ttsVoices = [
-    {"name": "id-ID-GadisNeural", "label": "Indonesian Female (Gadis)", "gender": "Female", "language": "Indonesian"},
-    {"name": "id-ID-ArdiNeural", "label": "Indonesian Male (Ardi)", "gender": "Male", "language": "Indonesian"},
-    {"name": "en-US-JennyNeural", "label": "English US Female (Jenny)", "gender": "Female", "language": "English"},
-    {"name": "en-US-GuyNeural", "label": "English US Male (Guy)", "gender": "Male", "language": "English"},
-    {"name": "ja-JP-NanamiNeural", "label": "Japanese Female (Nanami)", "gender": "Female", "language": "Japanese"},
-    {"name": "ja-JP-KeitaNeural", "label": "Japanese Male (Keita)", "gender": "Male", "language": "Japanese"},
+    {"name": "gadis", "label": "Indonesian Female (Gadis)", "gender": "Female", "language": "Indonesian"},
+    {"name": "ardi", "label": "Indonesian Male (Ardi)", "gender": "Male", "language": "Indonesian"},
   ];
 
   const [settings, setSettings] = useState<TTSSettings>({
@@ -74,7 +79,8 @@ const TextToSpeechWorkspace: React.FC = () => {
     setErrorMessage(null);
 
     try {
-      const response = await fetch('https://aryo100-rvc-tts.hf.space/run/predict', {
+      const apiUrl = import.meta.env.VITE_API_URL;
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -309,4 +315,4 @@ const TextToSpeechWorkspace: React.FC = () => {
   );
 };
 
-export default TextToSpeechWorkspace;
+export default TextToSpeechWorkspacePage;

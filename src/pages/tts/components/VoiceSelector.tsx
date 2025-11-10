@@ -18,18 +18,18 @@ const VoiceSelector: React.FC<VoiceSelectorProps> = ({
   onVoiceChange 
 }) => {
   const voiceModels: VoiceModel[] = [
-    {
-      "name": "EvilNeuroSama-Quiet",
-      "label": "Evil NeuroSama (Quiet)",
-      "ckpt_path": "EvilNeuroSama-Quiet_500e_4500s.pth",
-      "index_path": "EvilNeuroSama-Quiet.index"
-    },
-    {
-      "name": "HastuneMikuElevenLabs",
-      "label": "Hatsune Miku ElevenLabs",
-      "ckpt_path": "assets/weights/HastuneMikuElevenLabs.pth",
-      "index_path": "assets/weights/added_IVF28_Flat_nprobe_1_HastuneMikuElevenLabs_v2.index"
-    },
+    // {
+    //   "name": "EvilNeuroSama-Quiet",
+    //   "label": "Evil NeuroSama (Quiet)",
+    //   "ckpt_path": "EvilNeuroSama-Quiet_500e_4500s.pth",
+    //   "index_path": "EvilNeuroSama-Quiet.index"
+    // },
+    // {
+    //   "name": "HastuneMikuElevenLabs",
+    //   "label": "Hatsune Miku ElevenLabs",
+    //   "ckpt_path": "assets/weights/HastuneMikuElevenLabs.pth",
+    //   "index_path": "assets/weights/added_IVF28_Flat_nprobe_1_HastuneMikuElevenLabs_v2.index"
+    // },
     {
       "name": "zeta",
       "label": "Zeta",
@@ -38,16 +38,22 @@ const VoiceSelector: React.FC<VoiceSelectorProps> = ({
     },
     {
       "name": "kobov2",
-      "label": "Kobo v2",
+      "label": "Kobo",
       "ckpt_path": "kobov2.pth",
       "index_path": "added_IVF454_Flat_nprobe_1_kobov2_v2.index"
     },
     {
-      "name": "zet_small",
-      "label": "Zet Small",
-      "ckpt_path": "assets/weights/zet.pth",
-      "index_path": "logs/zet/added_IVF512_Flat_mi_baseline_src_feat.index"
-    }
+      "name": "chamber",
+      "label": "Chamber",
+      "ckpt_path": "Chamber.pth",
+      "index_path": "added_IVF746_Flat_nprobe_1_Chamber_v2.index"
+    },
+    // {
+    //   "name": "zet_small",
+    //   "label": "Zet Small",
+    //   "ckpt_path": "assets/weights/zet.pth",
+    //   "index_path": "logs/zet/added_IVF512_Flat_mi_baseline_src_feat.index"
+    // }
   ];
 
   return (

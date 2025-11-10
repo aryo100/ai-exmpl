@@ -29,7 +29,7 @@ const TextInput: React.FC<TextInputProps> = ({ text, onTextChange }) => {
       <div className="mt-6 flex flex-wrap gap-3">
         {[
           "Hello, this is a test of the text-to-speech system.",
-          "The quick brown fox jumps over the lazy dog.",
+          "Teknologi telah berkembang pesat dalam beberapa dekade terakhir, membawa perubahan besar dalam kehidupan manusia. Dari kemudahan berkomunikasi hingga akses informasi yang tak terbatas, kemajuan teknologi telah membuka banyak peluang baru. ",
           "Welcome to our text-to-speech workspace. Please enter your text above."
         ].map((sample, index) => (
           <button

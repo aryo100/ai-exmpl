@@ -1,5 +1,5 @@
 import React from 'react';
-import { Globe } from 'lucide-react';
+// import { Globe } from 'lucide-react';
 
 interface LanguageSelectorProps {
   selectedLanguage: string;
@@ -12,8 +12,8 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 }) => {
   const languages = [
     { value: 'Indonesian', label: 'Indonesian' },
-    { value: 'English', label: 'English' },
-    { value: 'Japanese', label: 'Japanese' }
+    // { value: 'English', label: 'English' },
+    // { value: 'Japanese', label: 'Japanese' }
   ];
 
   return (
