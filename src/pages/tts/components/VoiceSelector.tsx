@@ -1,60 +1,23 @@
 import React from 'react';
-import { User } from 'lucide-react';
+import { User, ChevronDown, Image } from 'lucide-react';
 
 interface VoiceModel {
   name: string;
   label: string;
   ckpt_path: string;
   index_path: string;
+  photo?: string;
 }
 
 interface VoiceSelectorProps {
   selectedVoice: VoiceModel | null;
-  onVoiceChange: (voice: VoiceModel) => void;
+  onOpenModal: () => void;
 }
 
 const VoiceSelector: React.FC<VoiceSelectorProps> = ({ 
   selectedVoice, 
-  onVoiceChange 
+  onOpenModal
 }) => {
-  const voiceModels: VoiceModel[] = [
-    // {
-    //   "name": "EvilNeuroSama-Quiet",
-    //   "label": "Evil NeuroSama (Quiet)",
-    //   "ckpt_path": "EvilNeuroSama-Quiet_500e_4500s.pth",
-    //   "index_path": "EvilNeuroSama-Quiet.index"
-    // },
-    // {
-    //   "name": "HastuneMikuElevenLabs",
-    //   "label": "Hatsune Miku ElevenLabs",
-    //   "ckpt_path": "assets/weights/HastuneMikuElevenLabs.pth",
-    //   "index_path": "assets/weights/added_IVF28_Flat_nprobe_1_HastuneMikuElevenLabs_v2.index"
-    // },
-    {
-      "name": "zeta",
-      "label": "Zeta",
-      "ckpt_path": "zeta.pth",
-      "index_path": "added_IVF409_Flat_nprobe_1.index"
-    },
-    {
-      "name": "kobov2",
-      "label": "Kobo",
-      "ckpt_path": "kobov2.pth",
-      "index_path": "added_IVF454_Flat_nprobe_1_kobov2_v2.index"
-    },
-    {
-      "name": "chamber",
-      "label": "Chamber",
-      "ckpt_path": "Chamber.pth",
-      "index_path": "added_IVF746_Flat_nprobe_1_Chamber_v2.index"
-    },
-    // {
-    //   "name": "zet_small",
-    //   "label": "Zet Small",
-    //   "ckpt_path": "assets/weights/zet.pth",
-    //   "index_path": "logs/zet/added_IVF512_Flat_mi_baseline_src_feat.index"
-    // }
-  ];
 
   return (
     <div>
@@ -62,21 +25,41 @@ const VoiceSelector: React.FC<VoiceSelectorProps> = ({
         Voice Model
       </label>
       
-      <select
-        value={selectedVoice?.name || ''}
-        onChange={(e) => {
-          const voice = voiceModels.find(v => v.name === e.target.value);
-          if (voice) onVoiceChange(voice);
-        }}
-        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white"
+      <button
+        onClick={onOpenModal}
+        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white text-left flex items-center justify-between gap-3"
       >
-        <option value="">Select a voice model...</option>
-        {voiceModels.map((voice) => (
-          <option key={voice.name} value={voice.name}>
-            {voice.label}
-          </option>
-        ))}
-      </select>
+        <div className="flex items-center gap-3 flex-1">
+          {selectedVoice ? (
+            <>
+              <div className="relative">
+                <img
+                  src={selectedVoice.photo}
+                  alt={selectedVoice.label}
+                  className="w-8 h-8 object-cover rounded-full"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    target.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                <div className="hidden w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                  <User className="h-4 w-4 text-gray-400" />
+                </div>
+              </div>
+              <span className="text-gray-900 font-medium">{selectedVoice.label}</span>
+            </>
+          ) : (
+            <>
+              <div className="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                <Image className="h-4 w-4 text-gray-400" />
+              </div>
+              <span className="text-gray-500">Select a voice model...</span>
+            </>
+          )}
+        </div>
+        <ChevronDown className="h-5 w-5 text-gray-400" />
+      </button>
     </div>
   );
 };

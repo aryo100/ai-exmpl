@@ -79,7 +79,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl }) => {
   return (
     <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6">
       <audio ref={audioRef} src={audioUrl} />
-      
+
       <div className="flex items-center gap-6 mb-6">
         <button
           onClick={togglePlay}
@@ -91,32 +91,36 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl }) => {
             <Play className="h-7 w-7 ml-1" />
           )}
         </button>
-        
+
         <button
           onClick={resetAudio}
           className="flex items-center justify-center w-12 h-12 bg-white hover:bg-gray-50 text-gray-600 hover:text-gray-800 rounded-full transition-all duration-200 transform hover:scale-110 shadow-md border border-gray-200"
         >
           <RotateCcw className="h-5 w-5" />
         </button>
-        
+
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
             <span className="text-sm font-medium text-gray-700">{formatTime(currentTime)}</span>
             <span className="text-sm text-gray-400">/</span>
             <span className="text-sm font-medium text-gray-700">{formatTime(duration)}</span>
           </div>
-          
+
           <input
             type="range"
             min="0"
             max={duration || 0}
             value={currentTime}
+            step="0.01"
             onChange={handleSeek}
-            className="w-full h-3 bg-gradient-to-r from-blue-200 to-indigo-200 rounded-full appearance-none cursor-pointer"
+            className="w-full h-1 rounded-full cursor-pointer slider"
+            style={{
+              '--slider-progress': `${Math.round(currentTime / duration * 100)}%`
+            } as React.CSSProperties}
           />
         </div>
       </div>
-      
+
       <div className="flex items-center gap-4">
         <Volume2 className="h-5 w-5 text-gray-600" />
         <input
@@ -126,7 +130,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl }) => {
           step="0.1"
           value={volume}
           onChange={handleVolumeChange}
-          className="flex-1 h-3 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full appearance-none cursor-pointer"
+          className="flex-1 h-1 rounded-full cursor-pointer slider"
+            style={{
+              '--slider-progress': `${volume * 100}%`,
+              '--slider-from-color': '#E5E7EB',
+              '--slider-to-color': '#E5E7EB'
+            } as React.CSSProperties}
         />
         <span className="text-sm font-medium text-gray-700 w-10">
           {Math.round(volume * 100)}%

@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Play, 
   Download, 
-  // Mic, 
+  Mic, 
   Settings, 
   Sparkles,
   Zap,
   Volume2,
   Type,
-  // Users,
-  // Globe
+  X,
 } from 'lucide-react';
 import VoiceSelector from './components/VoiceSelector';
 import GenderSelector from './components/GenderSelector';
@@ -17,12 +16,29 @@ import LanguageSelector from './components/LanguageSelector';
 import TextInput from './components/TextInput';
 import PitchControl from './components/PitchControl';
 import AudioPlayer from './components/AudioPlayer';
+import VoiceSelectionModal from './components/VoiceSelectionModal';
 
 interface VoiceModel {
   name: string;
   label: string;
   ckpt_path: string;
   index_path: string;
+}
+
+interface TTSSettings {
+  selectedVoice: VoiceModel | null;
+  selectedGender: string;
+  selectedLanguage: string;
+  text: string;
+  pitch: number;
+}
+
+interface VoiceModel {
+  name: string;
+  label: string;
+  ckpt_path: string;
+  index_path: string;
+  photo?: string;
 }
 
 interface TTSSettings {
@@ -54,11 +70,13 @@ const TextToSpeechWorkspacePage: React.FC = () => {
     selectedGender: 'Female',
     selectedLanguage: 'Indonesian',
     text: '',
-    pitch: 1
+    pitch: 4
   });
   const [isGenerating, setIsGenerating] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Function to get TTS voice based on gender and language
   const getTTSVoice = (gender: string, language: string): string | null => {
@@ -78,6 +96,10 @@ const TextToSpeechWorkspacePage: React.FC = () => {
     setIsGenerating(true);
     setErrorMessage(null);
 
+    // Create new AbortController for this request
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
     try {
       const apiUrl = import.meta.env.VITE_API_URL;
       const response = await fetch(apiUrl, {
@@ -89,8 +111,9 @@ const TextToSpeechWorkspacePage: React.FC = () => {
           text: settings.text,
           name: settings.selectedVoice.name,
           tts_voice: ttsVoice,
-          f0_up_key: Math.round(settings.pitch * 4)
-        })
+          f0_up_key: Math.round(settings.pitch)
+        }),
+        signal: abortController.signal
       });
 
       if (!response.ok) {
@@ -99,12 +122,26 @@ const TextToSpeechWorkspacePage: React.FC = () => {
 
       const data = await response.json();
       setAudioUrl(data.result);
-    } catch (error) {
-      console.error('Error generating speech:', error);
-      setErrorMessage('Failed to generate speech. Please try again.');
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        console.log('Request cancelled');
+        setErrorMessage('Generation cancelled.');
+      } else {
+        console.error('Error generating speech:', error);
+        setErrorMessage('Failed to generate speech. Please try again.');
+      }
     } finally {
       setIsGenerating(false);
+      abortControllerRef.current = null;
     }
+  };
+
+  const cancelGeneration = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    setIsGenerating(false);
+    setErrorMessage('Generation cancelled.');
   };
 
   const downloadAudio = () => {
@@ -117,12 +154,12 @@ const TextToSpeechWorkspacePage: React.FC = () => {
     a.click();
     document.body.removeChild(a);
   };
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        {/* <div className="text-center mb-12">
+        <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className="p-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl">
               <Mic className="h-10 w-10 text-white" />
@@ -138,45 +175,6 @@ const TextToSpeechWorkspacePage: React.FC = () => {
             Transform your text into natural-sounding speech with advanced AI voice synthesis. 
             Choose from multiple voice models and customize pitch to create the perfect audio experience.
           </p>
-        </div> */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Text-to-Speech Studio
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Transform your text into natural-sounding speech with advanced AI voice synthesis. 
-              Choose from multiple voice models and customize pitch to create the perfect audio experience.
-            </p>
-          </div>
-        </div>
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-xl p-8 text-white mb-12">
-          <div className="flex items-center gap-3 mb-4">
-            <Sparkles className="h-6 w-6" />
-            <h3 className="text-xl font-bold">Quick Start Guide</h3>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm font-bold">1</div>
-                <span>Select your preferred voice model</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm font-bold">2</div>
-                <span>Choose gender and language</span>
-              </div>
-            </div>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm font-bold">3</div>
-                <span>Adjust pitch settings</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm font-bold">4</div>
-                <span>Enter text and generate speech</span>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
@@ -194,9 +192,7 @@ const TextToSpeechWorkspacePage: React.FC = () => {
               <div className="space-y-6">
                 <VoiceSelector
                   selectedVoice={settings.selectedVoice}
-                  onVoiceChange={(voice) => 
-                    setSettings(prev => ({ ...prev, selectedVoice: voice }))
-                  }
+                  onOpenModal={() => setIsVoiceModalOpen(true)}
                 />
 
                 <GenderSelector
@@ -234,23 +230,31 @@ const TextToSpeechWorkspacePage: React.FC = () => {
 
             {/* Generate Button */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6">
-              <button
-                onClick={generateSpeech}
-                disabled={isGenerating || !settings.text.trim() || !settings.selectedVoice || !settings.selectedGender || !settings.selectedLanguage}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 flex items-center justify-center gap-3 shadow-lg"
-              >
-                {isGenerating ? (
-                  <>
+              {isGenerating ? (
+                <div className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-xl font-semibold text-lg flex items-center justify-center gap-3 shadow-lg relative">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      cancelGeneration();
+                    }}
+                    className="relative hover:bg-white/20 rounded-full p-1 transition-colors flex items-center justify-center"
+                    aria-label="Cancel generation"
+                  >
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-                    <span>Generating Speech...</span>
-                  </>
-                ) : (
-                  <>
-                    <Zap className="h-6 w-6" />
-                    <span>Generate Speech</span>
-                  </>
-                )}
-              </button>
+                    <X className="h-4 w-4 absolute" />
+                  </button>
+                  <span>Generating Speech...</span>
+                </div>
+              ) : (
+                <button
+                  onClick={generateSpeech}
+                  disabled={!settings.text.trim() || !settings.selectedVoice || !settings.selectedGender || !settings.selectedLanguage}
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 flex items-center justify-center gap-3 shadow-lg"
+                >
+                  <Zap className="h-6 w-6" />
+                  <span>Generate Speech</span>
+                </button>
+              )}
 
               {errorMessage ? (
                 <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
@@ -289,7 +293,19 @@ const TextToSpeechWorkspacePage: React.FC = () => {
 
             {/* Audio Player */}
             {audioUrl && (
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6">
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 relative">
+                {isGenerating && (
+                  <div className="absolute inset-0 bg-black/50 backdrop-blur-sm rounded-2xl z-10 flex items-center justify-center">
+                    <button
+                      onClick={cancelGeneration}
+                      className="mt-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
+                    >
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                      <X className="p-1 absolute" />
+                      Cancel
+                    </button>
+                  </div>
+                )}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-gradient-to-r from-orange-100 to-red-100 rounded-lg">
@@ -299,7 +315,8 @@ const TextToSpeechWorkspacePage: React.FC = () => {
                   </div>
                   <button
                     onClick={downloadAudio}
-                    className="flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105"
+                    disabled={isGenerating}
+                    className="flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 disabled:hover:scale-100"
                   >
                     <Download className="h-4 w-4" />
                     Download
@@ -308,9 +325,51 @@ const TextToSpeechWorkspacePage: React.FC = () => {
                 <AudioPlayer audioUrl={audioUrl} />
               </div>
             )}
+
+            {/* Quick Start Guide */}
+            {!audioUrl && (
+              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-xl p-8 text-white">
+                <div className="flex items-center gap-3 mb-4">
+                  <Sparkles className="h-6 w-6" />
+                  <h3 className="text-xl font-bold">Quick Start Guide</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                      <span>Select your preferred voice model</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                      <span>Choose gender and language</span>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm font-bold">3</div>
+                      <span>Adjust pitch settings</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm font-bold">4</div>
+                      <span>Enter text and generate speech</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Voice Selection Modal */}
+      <VoiceSelectionModal
+        isOpen={isVoiceModalOpen}
+        onClose={() => setIsVoiceModalOpen(false)}
+        selectedVoice={settings.selectedVoice}
+        onVoiceSelect={(voice) => 
+          setSettings(prev => ({ ...prev, selectedVoice: voice }))
+        }
+      />
     </div>
   );
 };

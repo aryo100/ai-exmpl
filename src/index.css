@@ -4,7 +4,13 @@
 
 /* Custom slider styles */
 .slider {
-  background: linear-gradient(to right, #3B82F6 0%, #3B82F6 50%, #E5E7EB 50%, #E5E7EB 100%);
+  background: linear-gradient(
+    to right, 
+    var(--slider-from-color, #3B82F6) 0%, 
+    var(--slider-from-color, #3B82F6) var(--slider-progress, 50%), 
+    var(--slider-to-color, #E5E7EB) var(--slider-progress, 50%), 
+    var(--slider-to-color, #E5E7EB) 100%
+  );
 }
 
 .slider::-webkit-slider-thumb {
@@ -43,7 +49,7 @@
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
-  background: transparent;
+  /* background: transparent; */
   cursor: pointer;
 }
 
